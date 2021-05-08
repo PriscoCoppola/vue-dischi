@@ -1,9 +1,14 @@
 <template>
     <section class="albums">
+        <div class="filter">
+            <Select @changed="filteredGenre" />
+        </div>
         
-        <Album :info="album"
-        v-for="(album, index) in albumsList" 
-        :key="index" />
+        <div class="box">
+            <Album :info="album"
+            v-for="(album, index) in newAlbumsList"
+            :key="index" />
+        </div>
         
     </section>
 </template>
@@ -11,17 +16,31 @@
 <script>
 import axios from "axios";
 import Album from "@/components/Album.vue";
+import Select from "@/components/Select.vue";
 
 export default {
     name: "Content",
     components: {
         Album,
+        Select,
     },
     data() {
         return {
             albumsList: [],
             loading: true,
+            genreSelected: 'all',
         };
+    },
+    computed: {
+        newAlbumsList() {
+            if (this.genreSelected === 'all') {
+                return this.albumsList;
+            }
+
+            return this.albumsList.filter( album => {
+                return album.genre.toLowerCase() === this.genreSelected.toLowerCase()
+            })
+        }
     },
     created() {
         this.getAlbums();
@@ -38,16 +57,20 @@ export default {
                     console.log("Error", err);
                 });
         },
+        filteredGenre(select) {
+            this.genreSelected = select;
+            console.log(this.genreSelected);
+        },
     },
 };
 </script>
 
 <style scoped lang="scss">
-.albums {
+.box {
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
-    padding: 100px 0 20px 0;
+    padding: 20px 0;
     background-color: #1d2d3c;
 }
 </style>
